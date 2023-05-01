@@ -47,45 +47,7 @@ class FlexTune(FloatProblem):
         return [self.lower_bound, self.upper_bound]
   
     def evaluate(self, solution: FloatSolution) -> FloatSolution:
-        
-        try:
-            
-            class_detail = self.solution_transformer(solution)
-
-        except:
-
-            
-            # print(f"solution {solution} cannot be transformed")
-
-
-            solution.objectives = [float('inf')] * self.number_of_objectives
-
-            return solution        
-
-
-        # print(f"solution: {solution} class_detail: {class_detail}")
-
-
-        scheduler = AppMCScheduler(total_gpus=self._total_gpus,
-                                    event_queue=copy.deepcopy(self._event_queue),
-                                    app_list=copy.deepcopy(self._app_list),
-                                    class_detail=class_detail,
-                                    app_info_fn=None,
-                                    estimate=True,
-                                    verbosity=0)
-
-
-        
-        tick = datetime.now()
-        scheduler.run()
-        tock = datetime.now()
-
-
-
-        objectives = self.__get_objective_value(scheduler, True)
-
-        solution.objectives = objectives[:]
-
+        # Not implemented in example
         return solution
 
     def __get_objective_value(self, scheduler, estimate):
