@@ -104,3 +104,38 @@ def load_sim(fname):
     objectives = header["objectives"]
     print("workload: {}".format(header["workload"]))
     print([objective.get_name() for objective in objectives])
+
+    checkpoint = loaded_obj[-1]
+    solutions = get_non_dominated_solutions(checkpoint["SOLUTIONS"])
+    solutions = filter_solutions(sorted(solutions, key=lambda s: s.objectives[0]))
+    checkpoint["SOLUTIONS"] = solutions
+    solutions = get_non_dominated_solutions(checkpoint["SOLUTIONS"])
+    evaluations = checkpoint["EVALUATIONS"]
+    computing_time = checkpoint["COMPUTING_TIME"]
+    points = [solution.objectives[:] for solution in solutions]
+
+    data = list()
+    for didex in range(len(objectives)):    
+        D = list(map(lambda p: p[didex], points))
+        if "jct" in objectives[didex].get_name():
+            D = normalize(D)
+        data.append(D)
+
+    fig = plt.figure(figsize=(8,6))
+    ax = fig.add_subplot(111)
+    ax.scatter(data[0],data[1],
+                    color=["white"]*len(data[0]),
+                    edgecolors=[colors[0]]*len(data[0]),
+                    s=[200]*len(data[0]),
+                    linewidth=1.75,
+                    label="FLEX configurations", picker=True, zorder=5)
+    ax.plot(data[0],data[1],
+                color=BLUE,
+                linewidth=1.75)
+    ellipse = Ellipse(xy=(2, 2.5), width=0.5, height=1, angle=135.0, 
+                            edgecolor='k', fc='w', lw=2)
+    ax.text(2,2.5,"Better", rotation=45.0, ha='center', va='center', size="xx-large")
+    ax.add_patch(ellipse)
+    draw_tri(offset_x=1.7, offset_y=2.2, ax=ax, scale=0.15)
+    ax.set_title(f"{evaluations} Configurations Evaluated in {round(computing_time/60.0, 2)} Minutes")
+    set_canvas(ax, x_label=objectives[0].get_name(), y_label=objectives[1].get_name())
